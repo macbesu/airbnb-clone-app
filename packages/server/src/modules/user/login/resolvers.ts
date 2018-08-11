@@ -1,23 +1,20 @@
 import * as bcrypt from 'bcryptjs';
 
-import { ResolverMap } from "../../types/graphql-utils";
-import { User } from '../../entity/User';
-import { invalidLogin, confirmEmailError } from './errorMessages';
+import { ResolverMap } from "../../../types/graphql-utils";
+import { User } from '../../../entity/User';
+import { invalidLogin, confirmEmailError, forgotPasswordLockedError } from './errorMessages';
+import { userSessionIdPrefix } from '../../../constants';
 
 const errMsgResponse = [{
   path: 'email',
   message: invalidLogin,
 }];
 
-export const resolvers: ResolverMap = {
-  Query: {
-    bye2: () => 'bye',
-  },
-  Mutation: {
+export const resolvers: ResolverMap = {Mutation: {
     login: async (
       _,
       { email, password }: GQL.ILoginOnMutationArguments,
-      { session }
+      { session, redis, req }
     ) => {
       const user = await User.findOne({ where: { email, } });
 
@@ -32,6 +29,13 @@ export const resolvers: ResolverMap = {
         }]
       }
 
+      if (user.forgotPasswordLocked) {
+        return [{
+          path: 'email',
+          message: forgotPasswordLockedError,
+        }]
+      }
+
       const passwordValid = await bcrypt.compare(password, user.password);
 
       if (!passwordValid) {
@@ -40,6 +44,9 @@ export const resolvers: ResolverMap = {
 
       // login successful
       session.userId = user.id;
+      if (req.sessionID) {
+        await redis.lpush(`${userSessionIdPrefix}${user.id}`, req.sessionID);
+      }
 
       return null;
     }

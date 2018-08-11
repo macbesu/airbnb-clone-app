@@ -1,11 +1,12 @@
 import * as yup from 'yup';
 
-import { ResolverMap } from "../../types/graphql-utils";
-import { User } from '../../entity/User';
-import { formatYupError } from '../../utils/formatYupError';
-import { duplicateEmail, emailNotLongEnough, invalidEmail, passwordNotLongEnough } from './errorMessages';
-// import { createConfirmEmailLink } from '../../utils/createConfirmEmailLink';
-// import { sendEmail } from '../../utils/sendEmail';
+import { ResolverMap } from "../../../types/graphql-utils";
+import { User } from '../../../entity/User';
+import { formatYupError } from '../../../utils/formatYupError';
+import { duplicateEmail, emailNotLongEnough, invalidEmail } from './errorMessages';
+import { registerPasswordValidation } from '../../../yupSchema';
+// import { createConfirmEmailLink } from '../../../utils/createConfirmEmailLink';
+// import { sendEmail } from '../../../utils/sendEmail';
 
 const schema = yup.object().shape({
   email: yup
@@ -13,16 +14,10 @@ const schema = yup.object().shape({
     .min(3, emailNotLongEnough)
     .max(255)
     .email(invalidEmail),
-  password: yup
-    .string()
-    .min(3, passwordNotLongEnough)
-    .max(255)
+  password: registerPasswordValidation,
 });
 
 export const resolvers: ResolverMap = {
-  Query: {
-    bye: () => 'bye',
-  },
   Mutation: {
     register: async (
       _,
