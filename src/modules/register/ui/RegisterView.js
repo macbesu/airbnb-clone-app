@@ -54,25 +54,62 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __importStar(require("react"));
-var RegisterView_1 = require("./ui/RegisterView");
-var RegisterConnector = /** @class */ (function (_super) {
-    __extends(RegisterConnector, _super);
-    function RegisterConnector() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.dummySubmit = function (values) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                console.log(values);
-                return [2 /*return*/, null];
-            });
-        }); };
-        return _this;
+var formik_1 = require("formik");
+var react_native_1 = require("react-native");
+var yup = __importStar(require("yup"));
+var InputField_1 = require("../../shared/InputField");
+var C = /** @class */ (function (_super) {
+    __extends(C, _super);
+    function C() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-    RegisterConnector.prototype.render = function () {
-        return <RegisterView_1.RegisterView submit={this.dummySubmit}/>;
+    C.prototype.render = function () {
+        var handleSubmit = this.props.handleSubmit;
+        return (<react_native_1.View style={{ marginTop: 200 }}>
+        <formik_1.Field name="email" placeholder="Email" component={InputField_1.InputField}/>
+        <formik_1.Field name="password" secureTextEntry={true} placeholder="Password" component={InputField_1.InputField}/>
+        <react_native_1.Button title="Submit" onPress={handleSubmit}/>
+      </react_native_1.View>);
     };
-    return RegisterConnector;
+    return C;
 }(React.PureComponent));
-exports.RegisterConnector = RegisterConnector;
-;
+var emailNotLongEnough = "email must be at least 3 characters";
+var passwordNotLongEnough = "password must be at least 3 characters";
+var invalidEmail = "email must be a valid email";
+var validationSchema = yup.object().shape({
+    email: yup
+        .string()
+        .min(3, emailNotLongEnough)
+        .max(255)
+        .email(invalidEmail)
+        .required(),
+    password: yup
+        .string()
+        .min(3, passwordNotLongEnough)
+        .max(255)
+        .required()
+});
+exports.RegisterView = formik_1.withFormik({
+    validationSchema: validationSchema,
+    mapPropsToValues: function () { return ({ email: "", password: "" }); },
+    handleSubmit: function (values, _a) {
+        var props = _a.props, setErrors = _a.setErrors;
+        return __awaiter(_this, void 0, void 0, function () {
+            var errors;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, props.submit(values)];
+                    case 1:
+                        errors = _b.sent();
+                        if (errors) {
+                            setErrors(errors);
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
+    }
+})(C);
