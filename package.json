@@ -7,7 +7,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "eject": "expo eject",
-    "gen-types": "./gen-types.sh"
+    "gen-types": "./gen-types.sh",
+    "schema:download": "./schema-download.sh",
+    "codegen:generate": "npm run schema:download && npm run gen-types"
   },
   "dependencies": {
     "@expo/videoplayer": "^0.4.0",
