@@ -30,6 +30,7 @@ export class InputField extends React.Component<FieldProps<any>> {
         errorMessage={errorMsg as string}
         onChangeText={this.onChangeText}
         value={field.value}
+        autoCapitalize="none"
       />
     );
   }
